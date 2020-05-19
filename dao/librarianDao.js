@@ -2,29 +2,47 @@
 var db = require("./db");
 
 exports.getAllBranches = function(cb){
-    db.query('select * from library.tbl_library_branch', function(err, result) {
+    let sql = 'select * from library.tbl_library_branch';
+    db.query(sql, function(err, result) {
         cb(err, result);
       });
 };
 
-exports.updateBranch = function(branch, cb){
-    let info = {branchName: branch.branchName, branchAddress: branch.address}
-    db.query('UPDATE library.tbl_library_branch SET ? WHERE branchId = ?', [info, branch.branchId], (err, result) => {
-        if (err) {
-            db.rollback(function(err, res){
-                cb(err, res);
-              });
-        };
-        db.commit(function(err,res) {
-            cb(err, result);
+exports.updateBranch = function(branch){
+
+    return new Promise(function (resolve, reject) {
+        let info = {branchName: branch.branchName, branchAddress: branch.address}
+        let sql = 'UPDATE library.tbl_library_branch SET ? WHERE branchId = ?';
+        db.query(sql,[info, branch.branchId] , function(err, res) {
+            return err ? reject(err) : resolve(res);
+        });
+    });
+}
+
+exports.getBranchById = function(id) {
+    return new Promise(function (resolve, reject) {
+        let sql = 'SELECT * FROM library.tbl_library_branch WHERE branchId = ?;';
+        db.query(sql,id,function(err,result) {
+            return err ? reject(err) : resolve(result);
         });
     });
 };
 
-exports.getBranchById = function(id) {
+exports.getBookCopies = function(bookId, branchId) {
     return new Promise(function (resolve, reject) {
-        db.query('SELECT * FROM library.tbl_library_branch WHERE branchId = ?;',id,function(err,result) {
+        let sql = 'SELECT * FROM library.tbl_book_copies WHERE bookId = ? AND branchId = ?;';
+        db.query(sql,[bookId,branchId],function(err,result) {
             return err ? reject(err) : resolve(result);
+        });
+    });
+};
+
+exports.updateBookCopies = function(bookCopies) {
+    return new Promise(function (resolve, reject) {
+        let info = {branchId: bookCopies.branchId, bookId: bookCopies.bookId, noOfCopies: bookCopies.noOfCopies};
+        let sql = 'UPDATE library.tbl_book_copies SET ? WHERE branchId = ? AND bookId = ?';
+        db.query(sql,[info, bookCopies.branchId, bookCopies.bookId] , function(err, res) {
+            return err ? reject(err) : resolve(res);
         });
     });
 };

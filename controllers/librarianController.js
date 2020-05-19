@@ -12,15 +12,21 @@ routes.get('/lms/librarian/branches',function(req,res){
     });
 });
 
-//using callbacks
-routes.put('/lms/librarian/branches', function(req,res) {
-  librarianService.updateBranch(req.body, function (error, result){
-    if (error) throw error;
-    res.setHeader('Content-Type', 'application/json');
-    res.send("updated branch");
-  });
+// using promises.
+routes.put('/lms/librarian/branches', function(req,res){
+  librarianService.updateBranch(req.body)
+  .then(function (result){
+    if (result == "empty") {
+      res.status(404).send("no record exists");
+    } else {
+      res.status(202).send("updated branch");
+    }
+  })
+  .catch(function (error) {
+    res.sendStatus(404);
+    console.log(error);
+  })
 });
-
 
 //using a promise
 routes.get('/lms/librarian/branches/:id', function(req, res) {
@@ -35,7 +41,19 @@ routes.get('/lms/librarian/branches/:id', function(req, res) {
   });
 });
 
-
-//using async await
+routes.put('/lms/librarian/branches/:id/copies', function(req, res) {
+  librarianService.updateBookCopies(req.body)
+  .then(function (result) {
+    if (result == "empty") {
+      res.status(404).send("no record exists");
+    } else {
+      res.status(202).send("updated copies");
+    }
+  })
+  .catch(function (error) {
+    res.sendStatus(404);
+    console.log(error);
+  });
+});
 
 module.exports = routes;
