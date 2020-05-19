@@ -1,10 +1,9 @@
-import bodyParser from "body-parser";
-import express from "express";
-
-let app = express();
+var bodyParser = require('body-parser')
+var express = require('express');
+var app = express();
 
 // parse application/x-www-form-urlencoded
-app.use(bodyParser.json());
+// console.log("starting");
 app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use(function(req, res, next) {
@@ -16,9 +15,9 @@ app.use(function(req, res, next) {
 // parse application/json
 app.use(bodyParser.json());
 
-app.use(require('./controllers/bookController'));
-
-app.use(require('./controllers/authorController'));
+app.use(require('./controllers/librarianController'));
+// console.log("ending");
+// app.use(require('./controllers/authorController'));
 
 app.listen(3000);
 console.log('Server running in port: 3000 ...')

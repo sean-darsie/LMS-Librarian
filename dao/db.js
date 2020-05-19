@@ -1,10 +1,12 @@
-import mysql from "mysql";
+// import mysql from "mysql";
+var mysql = require("mysql");
+'use strict';
 
 let connection = mysql.createConnection({
-    host     : '127.0.0.1',
+    host     : 'localhost',
     user     : 'root',
-    password : 'WantoCode#15',
-    database : 'lms'
+    password : 'texas',
+    database : 'library'
 });
 
 module.exports = connection;
