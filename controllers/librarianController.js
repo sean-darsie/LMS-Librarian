@@ -1,7 +1,5 @@
-//import librarianService from "../service/librarianService";
 var routes = require('express').Router();
 var librarianService = require('../service/librarianService');
-var librarianDao = require('../dao/librarianDao');
 
 //using callbacks
 routes.get('/lms/librarian/branches',function(req,res){
@@ -14,6 +12,10 @@ routes.get('/lms/librarian/branches',function(req,res){
 
 // using promises.
 routes.put('/lms/librarian/branches', function(req,res){
+  if (req.body.branchName.length >= 45 || req.body.branchAddress.length >= 45)
+  {
+    res.status(400).send("name or address length is too long");
+  }
   librarianService.updateBranch(req.body)
   .then(function (result){
     if (result == "empty") {
@@ -55,5 +57,6 @@ routes.put('/lms/librarian/branches/:id/copies', function(req, res) {
     console.log(error);
   });
 });
+
 
 module.exports = routes;

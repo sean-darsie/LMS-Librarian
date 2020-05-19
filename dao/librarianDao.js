@@ -11,9 +11,8 @@ exports.getAllBranches = function(cb){
 exports.updateBranch = function(branch){
 
     return new Promise(function (resolve, reject) {
-        let info = {branchName: branch.branchName, branchAddress: branch.address}
-        let sql = 'UPDATE library.tbl_library_branch SET ? WHERE branchId = ?';
-        db.query(sql,[info, branch.branchId] , function(err, res) {
+        let sql = 'UPDATE library.tbl_library_branch SET branchName = ?, branchAddress = ? WHERE branchId = ?';
+        db.query(sql,[branch.branchName, branch.branchAddress, branch.branchId] , function(err, res) {
             return err ? reject(err) : resolve(res);
         });
     });
