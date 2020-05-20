@@ -22,20 +22,13 @@ routes.get('/lms/librarian/branches',function(req,res){
 
 // using promises.
 routes.put('/lms/librarian/branches', function(req,res){
-  if (req.body.branchName.length >= 45 || req.body.branchAddress.length >= 45)
-  {
-    res.status(400).send("name or address length is too long");
-  }
   librarianService.updateBranch(req.body)
   .then(function (result){
-    if (result == "empty") {
-      res.status(404).send("no record exists");
-    } else {
-      res.status(202).send("updated branch");
-    }
+      res.status(result.status);
+      res.send(result.message);
   })
   .catch(function (error) {
-    res.sendStatus(404);
+    res.sendStatus(500);
     console.log(error);
   })
 });
@@ -61,14 +54,11 @@ routes.get('/lms/librarian/branches/:id', function(req, res) {
 routes.put('/lms/librarian/branches/:id/copies', function(req, res) {
   librarianService.updateBookCopies(req.body)
   .then(function (result) {
-    if (result == "empty") {
-      res.status(404).send("no record exists");
-    } else {
-      res.status(202).send("updated copies");
-    }
+    res.status(result.status);
+    res.send(result.message);
   })
   .catch(function (error) {
-    res.sendStatus(404);
+    res.sendStatus(500);
     console.log(error);
   });
 });
