@@ -4,9 +4,19 @@ var librarianService = require('../service/librarianService');
 //using callbacks
 routes.get('/lms/librarian/branches',function(req,res){
     librarianService.getAllBranches(function(error, result){
-      if(error) throw error;
-      res.setHeader('Content-Type', 'application/json');
-      res.send(result);
+      if(error) {
+        res.status(500);
+        res.send("an error occoured");
+      }
+      if (result.length != 0){
+        res.setHeader('Content-Type', 'application/json');
+        console.log(result.length);
+        res.status(200);
+        res.send(result); 
+      } else {
+        res.status(404);
+        res.send("no records available ");
+      }
     });
 });
 
@@ -34,11 +44,16 @@ routes.put('/lms/librarian/branches', function(req,res){
 routes.get('/lms/librarian/branches/:id', function(req, res) {
   librarianService.getBranchById(parseInt(req.params.id))
   .then(function(result) {
-    res.setHeader('Content-Type', 'application/json');
-    res.send(result);
+    if (result.length != 0) {
+      res.setHeader('Content-Type', 'application/json');
+      res.send(result);
+    } else {
+      res.status(404);
+      res.send(`cannot find branch with id: ${req.params.id}`);
+    }
   })
   .catch(function (error){
-    res.sendStatus(404);
+    res.sendStatus(500);
     console.log(error);
   });
 });
