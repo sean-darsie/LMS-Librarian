@@ -1,13 +1,11 @@
-// import librarianDao from "../dao/librarianDao";
 var librarianDao = require("../dao/librarianDao");
 
 const maxLength = 45;
-const minLength = 1;
+const minLength = 2;
 
 exports.getAllBranches = function(cb){
     librarianDao.getAllBranches(function(error, result){
         if(error) throw error;
-        console.log(result);
         cb(error, result);
       });
 };
@@ -72,9 +70,15 @@ exports.updateBookCopies = function (bookCopies) {
         librarianDao.getBookCopies(bookCopies.bookId, bookCopies.branchId)
         .then(function (result) {
             if (result.length == 0) {
-                responseAttributes.status = 404;
-                responseAttributes.message = `could not find record of bookcopies with bookId ${bookCopies.bookId} at branch ${bookCopies.branchId}`;
-                resolve(responseAttributes);
+                librarianDao.createBookCopies(bookCopies)
+                .then(function (res){
+                    responseAttributes.status = 201;
+                    responseAttributes.message = "book copies record created";
+                    resolve(responseAttributes);
+                })
+                .catch(function (error) {
+                    reject(`database error ${error}`);
+                });
             } else {
                 librarianDao.updateBookCopies(bookCopies)
                 .then(function (res){
