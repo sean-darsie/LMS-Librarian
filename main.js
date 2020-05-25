@@ -3,7 +3,6 @@ var express = require('express');
 var app = express();
 
 // parse application/x-www-form-urlencoded
-// console.log("starting");
 app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use(function(req, res, next) {
@@ -12,12 +11,9 @@ app.use(function(req, res, next) {
     next();
   });
 
-// parse application/json
 app.use(bodyParser.json());
 
 app.use(require('./controllers/librarianController'));
-// console.log("ending");
-// app.use(require('./controllers/authorController'));
 
-app.listen(3000);
-console.log('Server running in port: 3000 ...')
+app.listen(3001);
+console.log('Server running in port: 3001 ...')

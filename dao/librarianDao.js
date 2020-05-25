@@ -45,3 +45,12 @@ exports.updateBookCopies = function(bookCopies) {
         });
     });
 };
+
+exports.createBookCopies = function(bookCopies) {
+    return new Promise(function (resolve, reject) {
+        let sql = 'INSERT INTO library.tbl_book_copies (bookId,branchId,noOfCopies) VALUES(?,?,?)';
+        db.query(sql,[bookCopies.bookId, bookCopies.branchId, bookCopies.noOfCopies] , function(err, res) {
+            return err ? reject(err) : resolve(res);
+        });
+    });
+};

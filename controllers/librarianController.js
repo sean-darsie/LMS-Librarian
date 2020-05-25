@@ -10,7 +10,6 @@ routes.get('/lms/librarian/branches',function(req,res){
       }
       if (result.length != 0){
         res.setHeader('Content-Type', 'application/json');
-        console.log(result.length);
         res.status(200);
         res.send(result); 
       } else {
@@ -38,7 +37,8 @@ routes.get('/lms/librarian/branches/:id', function(req, res) {
   librarianService.getBranchById(parseInt(req.params.id))
   .then(function(result) {
     if (result.length != 0) {
-      res.setHeader('Content-Type', 'application/json');
+      res.status(200);
+      res.format
       res.send(result);
     } else {
       res.status(404);
