@@ -1,14 +1,13 @@
-// import db from "./db";
-var db = require("./db");
 
-exports.getAllBranches = function(cb){
+
+exports.getAllBranches = function(db, cb){
     let sql = 'select * from library.tbl_library_branch';
     db.query(sql, function(err, result) {
         cb(err, result);
       });
 };
 
-exports.updateBranch = function(branch){
+exports.updateBranch = function(db,branch){
 
     return new Promise(function (resolve, reject) {
         let sql = 'UPDATE library.tbl_library_branch SET branchName = ?, branchAddress = ? WHERE branchId = ?';
@@ -18,7 +17,7 @@ exports.updateBranch = function(branch){
     });
 }
 
-exports.getBranchById = function(id) {
+exports.getBranchById = function(db, id) {
     return new Promise(function (resolve, reject) {
         let sql = 'SELECT * FROM library.tbl_library_branch WHERE branchId = ?;';
         db.query(sql,id,function(err,result) {
@@ -27,7 +26,7 @@ exports.getBranchById = function(id) {
     });
 };
 
-exports.getBookCopies = function(bookId, branchId) {
+exports.getBookCopies = function(db,bookId, branchId) {
     return new Promise(function (resolve, reject) {
         let sql = 'SELECT * FROM library.tbl_book_copies WHERE bookId = ? AND branchId = ?;';
         db.query(sql,[bookId,branchId],function(err,result) {
@@ -36,7 +35,7 @@ exports.getBookCopies = function(bookId, branchId) {
     });
 };
 
-exports.updateBookCopies = function(bookCopies) {
+exports.updateBookCopies = function(db,bookCopies) {
     return new Promise(function (resolve, reject) {
         let info = {branchId: bookCopies.branchId, bookId: bookCopies.bookId, noOfCopies: bookCopies.noOfCopies};
         let sql = 'UPDATE library.tbl_book_copies SET ? WHERE branchId = ? AND bookId = ?';
@@ -46,7 +45,7 @@ exports.updateBookCopies = function(bookCopies) {
     });
 };
 
-exports.createBookCopies = function(bookCopies) {
+exports.createBookCopies = function(db,bookCopies) {
     return new Promise(function (resolve, reject) {
         let sql = 'INSERT INTO library.tbl_book_copies (bookId,branchId,noOfCopies) VALUES(?,?,?)';
         db.query(sql,[bookCopies.bookId, bookCopies.branchId, bookCopies.noOfCopies] , function(err, res) {
