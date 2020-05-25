@@ -21,6 +21,16 @@ routes.get('/lms/librarian/branches',function(req,res){
 
 // using promises.
 routes.put('/lms/librarian/branches', function(req,res){
+  if (!req.body.branchId || !req.body.branchName || !req.body.branchAddress) {
+    res.sendStatus(400);
+  }
+  if (req.body.branchName.length > 45 || req.body.branchName.length < 3) {
+    res.status(400).send("text must be between 3 and 45 characters");
+  } 
+  if (req.body.branchAddress.length > 45 || req.body.branchAddress.length < 3) {
+    res.status(400).send("text must be between 3 and 45 characters");
+  } 
+
   librarianService.updateBranch(req.body)
   .then(function (result){
       res.status(result.status);
@@ -52,6 +62,9 @@ routes.get('/lms/librarian/branches/:id', function(req, res) {
 });
 
 routes.put('/lms/librarian/branches/:id/copies', function(req, res) {
+  if (!req.body.branchId || !req.body.bookId || !req.body.noOfCopies) {
+    res.sendStatus(400);
+  }
   librarianService.updateBookCopies(req.body)
   .then(function (result) {
     res.status(result.status);

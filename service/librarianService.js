@@ -1,10 +1,9 @@
-var librarianDao = require("../dao/librarianDao");
+const librarianDao = require("../dao/librarianDao");
+const db = require("./db");
 
-const maxLength = 45;
-const minLength = 2;
 
 exports.getAllBranches = function(cb){
-    librarianDao.getAllBranches(function(error, result){
+    librarianDao.getAllBranches(db,function(error, result){
         if(error) throw error;
         cb(error, result);
       });
@@ -13,36 +12,29 @@ exports.getAllBranches = function(cb){
 exports.updateBranch = function (branch) {
     return new Promise(function (resolve, reject) {
         let responseAttributes = {};
-        if(branch.branchName == undefined || branch.branchId == undefined || branch.branchAddress == undefined) {
-            console.log("no branch");
-            responseAttributes.status = 400;
-            responseAttributes.message = "user must provide a value for all fields of the branch";
-            resolve(responseAttributes);
-        }
 
-        if (branch.branchName.length >= maxLength    || 
-            branch.branchName.length < minLength     ||
-            branch.branchAddress.length >= maxLength ||
-            branch.branchAddress.length < minLength) {
-            responseAttributes.status = 400;
-            responseAttributes.message = `text fields must be between ${minLength} and ${maxLength} in characters `;
-            resolve(responseAttributes);
-        }
-        librarianDao.getBranchById(branch.branchId)
+        librarianDao.getBranchById(db,branch.branchId)
         .then(function (res) {
             if (res.length == 0) {
                 responseAttributes.status = 404;
                 responseAttributes.message = "branch not found";
                 resolve(responseAttributes);
             } else {
-                librarianDao.updateBranch(branch)
-                .then(function (result){
-                    responseAttributes.status = 202;
-                    responseAttributes.message = "branch updated";
-                    resolve(responseAttributes);
-                })
-                .catch(function (error) {
-                    reject(`problem updating branch ${error}`);
+                db.beginTransaction((transactionError) => {
+                    if (transactionError) {
+                      results.transactionError = true;
+                      reject(results);
+                      return;
+                    }
+                    librarianDao.updateBranch(db,branch)
+                    .then(function (result){
+                        responseAttributes.status = 202;
+                        responseAttributes.message = "branch updated";
+                        db.commit(() => resolve(responseAttributes));
+                    })
+                    .catch(function (error) {
+                        db.rollback(() => reject(error));
+                    });
                 });
             }
         })
@@ -54,7 +46,7 @@ exports.updateBranch = function (branch) {
 
 exports.getBranchById = function (id) {
     return new Promise(function (resolve, reject){
-        librarianDao.getBranchById(id)
+        librarianDao.getBranchById(db, id)
         .then(function (result) {
             resolve(result);
         })
@@ -67,10 +59,10 @@ exports.getBranchById = function (id) {
 exports.updateBookCopies = function (bookCopies) {
     return new Promise(function (resolve, reject) {
         let responseAttributes = {};
-        librarianDao.getBookCopies(bookCopies.bookId, bookCopies.branchId)
+        librarianDao.getBookCopies(db,bookCopies.bookId, bookCopies.branchId)
         .then(function (result) {
             if (result.length == 0) {
-                librarianDao.createBookCopies(bookCopies)
+                librarianDao.createBookCopies(db, bookCopies)
                 .then(function (res){
                     responseAttributes.status = 201;
                     responseAttributes.message = "book copies record created";
@@ -80,14 +72,21 @@ exports.updateBookCopies = function (bookCopies) {
                     reject(`database error ${error}`);
                 });
             } else {
-                librarianDao.updateBookCopies(bookCopies)
-                .then(function (res){
-                    responseAttributes.status = 202;
-                    responseAttributes.message = "book copies updated";
-                    resolve(responseAttributes);
-                })
-                .catch(function (error) {
-                    reject(`database error ${error}`);
+                db.beginTransaction((transactionError) => {
+                    if (transactionError) {
+                      results.transactionError = true;
+                      reject(results);
+                      return;
+                    }
+                    librarianDao.updateBookCopies(db,bookCopies)
+                    .then(function (res){
+                        responseAttributes.status = 202;
+                        responseAttributes.message = "book copies updated";
+                        db.commit(() => resolve(responseAttributes));
+                    })
+                    .catch(function (error) {
+                        db.rollback(()=> reject(error));
+                    });
                 });
             }
         })
