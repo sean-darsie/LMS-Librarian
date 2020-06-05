@@ -34,11 +34,10 @@ routes.put('/lms/librarian/branches', function(req,res){
   librarianService.updateBranch(req.body)
   .then(function (result){
       res.status(result.status);
-      res.send(result.message);
+      res.send(result.result);
   })
   .catch(function (error) {
     res.sendStatus(500);
-    console.log(error);
   })
 });
 
@@ -57,7 +56,6 @@ routes.get('/lms/librarian/branches/:id', function(req, res) {
   })
   .catch(function (error){
     res.sendStatus(500);
-    console.log(error);
   });
 });
 
@@ -68,13 +66,11 @@ routes.put('/lms/librarian/branches/:id/copies', function(req, res) {
   librarianService.updateBookCopies(req.body)
   .then(function (result) {
     res.status(result.status);
-    res.send(result.message);
+    res.send(result.result);
   })
   .catch(function (error) {
     res.sendStatus(500);
-    console.log(error);
   });
 });
-
 
 module.exports = routes;

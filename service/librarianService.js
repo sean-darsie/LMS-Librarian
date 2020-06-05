@@ -29,7 +29,7 @@ exports.updateBranch = function (branch) {
                     librarianDao.updateBranch(db,branch)
                     .then(function (result){
                         responseAttributes.status = 202;
-                        responseAttributes.message = "branch updated";
+                        responseAttributes['result'] = result;
                         db.commit(() => resolve(responseAttributes));
                     })
                     .catch(function (error) {
@@ -62,14 +62,21 @@ exports.updateBookCopies = function (bookCopies) {
         librarianDao.getBookCopies(db,bookCopies.bookId, bookCopies.branchId)
         .then(function (result) {
             if (result.length == 0) {
-                librarianDao.createBookCopies(db, bookCopies)
-                .then(function (res){
-                    responseAttributes.status = 201;
-                    responseAttributes.message = "book copies record created";
-                    resolve(responseAttributes);
-                })
-                .catch(function (error) {
-                    reject(`database error ${error}`);
+                db.beginTransaction((transactionError) => {
+                    if (transactionError) {
+                      results.transactionError = true;
+                      reject(results);
+                      return;
+                    }
+                    librarianDao.createBookCopies(db, bookCopies)
+                    .then(function (res){
+                        responseAttributes.status = 201;
+                        responseAttributes['result'] = res;
+                        db.commit(() => resolve(responseAttributes));
+                    })
+                    .catch(function (error) {
+                        db.rollback(()=> reject(error));
+                    });
                 });
             } else {
                 db.beginTransaction((transactionError) => {
@@ -81,7 +88,7 @@ exports.updateBookCopies = function (bookCopies) {
                     librarianDao.updateBookCopies(db,bookCopies)
                     .then(function (res){
                         responseAttributes.status = 202;
-                        responseAttributes.message = "book copies updated";
+                        responseAttributes['result'] = res;
                         db.commit(() => resolve(responseAttributes));
                     })
                     .catch(function (error) {
